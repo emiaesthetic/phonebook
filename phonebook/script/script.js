@@ -201,6 +201,10 @@ const data = [
 
     return {
       list: table.tbody,
+      logo,
+      btnAdd: buttonGroup.buttons[0],
+      formOverlay: form.overlay,
+      form: form.form,
     };
   };
 
@@ -225,6 +229,7 @@ const data = [
     phoneLink.textContent = phone;
     tdPhone.append(phoneLink);
 
+    tr.phoneLink = phoneLink;
     tr.append(tdDel, tdName, tdSurname, tdPhone);
 
     return tr;
@@ -233,16 +238,61 @@ const data = [
   const renderContacts = (elem, data) => {
     const allRow = data.map(createRow);
     elem.append(...allRow);
+    return allRow;
+  };
+
+  const hoverRow = (allRow, logo) => {
+    const logoText = logo.textContent;
+
+    allRow.forEach(contact => {
+      contact.addEventListener('mouseenter', () => {
+        logo.textContent = contact.phoneLink.textContent;
+      });
+
+      contact.addEventListener('mouseleave', () => {
+        logo.textContent = logoText;
+      });
+    });
   };
 
   const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
     const phoneBook = renderPhoneBook(app, title);
 
-    const {list} = phoneBook;
+    const {list, logo, btnAdd, formOverlay, form} = phoneBook;
+    const closeButton = form.querySelector('.close');
 
-    renderContacts(list, data);
     // Функционал
+    const allRow = renderContacts(list, data);
+    hoverRow(allRow, logo);
+
+    btnAdd.addEventListener('click', () => {
+      formOverlay.classList.add('is-visible');
+    });
+
+    form.addEventListener('click', event => {
+      event.stopPropagation();
+    });
+
+    formOverlay.addEventListener('click', () => {
+      formOverlay.classList.remove('is-visible');
+    });
+
+    closeButton.addEventListener('click', () => {
+      formOverlay.classList.remove('is-visible');
+    });
+
+    document.addEventListener('touchstart', event => {
+      console.log(event.type);
+    });
+
+    document.addEventListener('touchmove', event => {
+      console.log(event.type);
+    });
+
+    document.addEventListener('touchend', event => {
+      console.log(event.type);
+    });
   };
 
   window.phoneBookInit = init;
