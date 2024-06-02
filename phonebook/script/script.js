@@ -228,9 +228,15 @@ const data = [
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
     tdPhone.append(phoneLink);
-
     tr.phoneLink = phoneLink;
-    tr.append(tdDel, tdName, tdSurname, tdPhone);
+
+    const tdEdit = document.createElement('td');
+    const editButton = document.createElement('button');
+    editButton.classList.add('btn', 'btn-success')
+    editButton.textContent = 'Редактировать';
+    tdEdit.append(editButton);
+
+    tr.append(tdDel, tdName, tdSurname, tdPhone, tdEdit);
 
     return tr;
   };
