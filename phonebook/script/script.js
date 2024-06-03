@@ -99,14 +99,15 @@ const data = [
     thead.insertAdjacentHTML('beforeend', `
       <tr>
         <th class="delete">Удалить</th>
-        <th>Имя</th>
-        <th>Фамилия</th>
-        <th>Телефон</th>
+        <th class="thead-name">Имя</th>
+        <th class="thead-surname">Фамилия</th>
+        <th class="thead-phone">Телефон</th>
       </tr>
     `);
     const tbody = document.createElement('tbody');
 
     table.append(thead, tbody);
+    table.thead = thead;
     table.tbody = tbody;
 
     return table;
@@ -201,11 +202,11 @@ const data = [
 
     return {
       list: table.tbody,
+      thead: table.thead,
       logo,
       btnAdd: buttonGroup.buttons[0],
       btnDel: buttonGroup.buttons[1],
       formOverlay: form.overlay,
-      form: form.form,
     };
   };
 
@@ -234,7 +235,7 @@ const data = [
 
     const tdEdit = document.createElement('td');
     const editButton = document.createElement('button');
-    editButton.classList.add('btn', 'btn-success')
+    editButton.classList.add('btn', 'btn-success');
     editButton.textContent = 'Редактировать';
     tdEdit.append(editButton);
 
@@ -263,11 +264,16 @@ const data = [
     });
   };
 
+  const sortingData = (property) => {
+    const copyData = [...data];
+    return copyData.sort((a, b) => (a[property] > b[property] ? 1 : -1));
+  };
+
   const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
     const phoneBook = renderPhoneBook(app, title);
 
-    const {list, logo, btnAdd, btnDel, formOverlay, form} = phoneBook;
+    const {list, logo, btnAdd, btnDel, formOverlay, thead} = phoneBook;
 
     // Функционал
     const allRow = renderContacts(list, data);
@@ -294,6 +300,18 @@ const data = [
       const target = e.target;
       if (target.closest('.del-icon')) {
         target.closest('.contact').remove();
+      }
+    });
+
+    thead.addEventListener('click', (e) => {
+      const target = e.target;
+
+      if (target.closest('.thead-name') || target.closest('.thead-surname')) {
+        const property = target.className.split('-')[1];
+        const sortedData = sortingData(property);
+
+        list.innerHTML = '';
+        renderContacts(list, sortedData);
       }
     });
   };
