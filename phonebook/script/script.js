@@ -24,9 +24,24 @@ const data = [
 ];
 
 {
-  const addContactData = (contact) => {
-    data.push(contact);
-    console.log(data);
+  const getStorage = (key) => JSON.parse(localStorage.getItem(key)) || [];
+
+  const setStorage = (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  };
+
+  const removeStorage = (phoneNumber) => {
+    const contacts = getStorage('contacts');
+    setStorage(
+        'contacts',
+        contacts.filter((contact) => contact.phone !== phoneNumber),
+    );
+  };
+
+  const addContact = (contact) => {
+    const contacts = getStorage('contacts');
+    contacts.push(contact);
+    setStorage('contacts', contacts);
   };
 
   const createContainer = () => {
@@ -101,14 +116,17 @@ const data = [
     table.classList.add('table', 'table-striped');
 
     const thead = document.createElement('thead');
-    thead.insertAdjacentHTML('beforeend', `
+    thead.insertAdjacentHTML(
+        'beforeend',
+        `
       <tr>
         <th class="delete">Удалить</th>
         <th class="thead-name">Имя</th>
         <th class="thead-surname">Фамилия</th>
         <th class="thead-phone">Телефон</th>
       </tr>
-    `);
+    `,
+    );
     const tbody = document.createElement('tbody');
 
     table.append(thead, tbody);
@@ -124,7 +142,9 @@ const data = [
 
     const form = document.createElement('form');
     form.classList.add('form');
-    form.insertAdjacentHTML('beforeend', `
+    form.insertAdjacentHTML(
+        'beforeend',
+        `
       <button class="close"></button>
       <h2 class="form-title">Добавить контакт</h2>
       <div class="form-group">
@@ -157,7 +177,8 @@ const data = [
           required
         >
       </div>
-    `);
+    `,
+    );
 
     const buttonGroup = createButtonGroup([
       {
@@ -199,7 +220,7 @@ const data = [
       },
     ]);
     const table = createTable();
-    const { form, overlay } = createForm();
+    const {form, overlay} = createForm();
 
     header.headerContainer.append(logo);
     main.mainContainer.append(buttonGroup.buttonWrapper, table, overlay);
@@ -241,7 +262,7 @@ const data = [
 
     const tdEdit = document.createElement('td');
     const editButton = document.createElement('button');
-    editButton.classList.add('btn', 'btn-success');;
+    editButton.classList.add('btn', 'btn-success');
     editButton.textContent = 'Редактировать';
     tdEdit.append(editButton);
 
@@ -259,7 +280,7 @@ const data = [
   const hoverRow = (allRow, logo) => {
     const logoText = logo.textContent;
 
-    allRow.forEach(contact => {
+    allRow.forEach((contact) => {
       contact.addEventListener('mouseenter', () => {
         logo.textContent = contact.phoneLink.textContent;
       });
@@ -303,7 +324,12 @@ const data = [
     list.addEventListener('click', (e) => {
       const target = e.target;
       if (target.closest('.del-icon')) {
-        target.closest('.contact').remove();
+        const contact = target.closest('.contact');
+        contact.remove();
+
+        const phoneNumber = contact.querySelector('a').textContent;
+        console.log(phoneNumber);
+        removeStorage(phoneNumber);
       }
     });
   };
@@ -339,7 +365,7 @@ const data = [
       const formData = new FormData(e.target);
       const newContact = Object.fromEntries(formData);
       addContactPage(list, newContact);
-      addContactData(newContact);
+      addContact(newContact);
 
       form.reset();
       closeModal();
@@ -349,19 +375,14 @@ const data = [
   const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
 
-    const {
-      list,
-      thead,
-      form,
-      logo,
-      btnAdd,
-      btnDel,
-      formOverlay,
-    } = renderPhoneBook(app, title);
+    const {list, thead, form, logo, btnAdd, btnDel, formOverlay} =
+        renderPhoneBook(app, title);
+
+    setStorage('contacts', data);
 
     // Функционал
     const allRow = renderContacts(list, data);
-    const { closeModal } = modalControl(btnAdd, formOverlay);
+    const {closeModal} = modalControl(btnAdd, formOverlay);
 
     hoverRow(allRow, logo);
     deleteControl(btnDel, list);
