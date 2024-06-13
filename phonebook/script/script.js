@@ -334,12 +334,12 @@ const data = [
     });
   };
 
-  const sortedControl = (thead, list) => {
-    const sortingData = (property) => {
-      const copyData = [...data];
-      return copyData.sort((a, b) => (a[property] > b[property] ? 1 : -1));
-    };
+  const sortingData = (property) => {
+    const copyData = [...data];
+    return copyData.sort((a, b) => (a[property] > b[property] ? 1 : -1));
+  };
 
+  const sortedControl = (thead, list) => {
     thead.addEventListener('click', (e) => {
       const target = e.target;
 
@@ -349,6 +349,7 @@ const data = [
 
         list.innerHTML = '';
         renderContacts(list, sortedData);
+        sessionStorage.setItem('sortingProperty', property);
       }
     });
   };
@@ -378,10 +379,13 @@ const data = [
     const {list, thead, form, logo, btnAdd, btnDel, formOverlay} =
         renderPhoneBook(app, title);
 
-    setStorage('contacts', data);
-
     // Функционал
-    const allRow = renderContacts(list, data);
+    const sortingProperty = sessionStorage.getItem('sortingProperty');
+    const contacts = sortingProperty ? sortingData(sortingProperty) : [...data];
+
+    setStorage('contacts', contacts);
+
+    const allRow = renderContacts(list, contacts);
     const {closeModal} = modalControl(btnAdd, formOverlay);
 
     hoverRow(allRow, logo);
